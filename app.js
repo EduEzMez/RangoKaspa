@@ -5,6 +5,36 @@ const bodyParser = require('body-parser');
 const Rango = require('./models/Rango');  
 const { consultarPrecio } = require('./config/monKas');
 
+
+
+
+
+
+//Instalar un generador de HTML a partir de Handlebars
+const fs = require('fs');
+const handlebars = require('handlebars');
+
+// Lee el archivo main.handlebars
+fs.readFile('views/layouts/main.handlebars', 'utf-8', (err, data) => {
+    if (err) {
+      console.log('Error al leer el archivo:', err);
+      return;
+    }
+  
+    // Compila la plantilla Handlebars
+    const template = handlebars.compile(data);
+    const result = template({ name: 'Ezequiel' });  // Aquí puedes pasar los datos dinámicos que necesites
+  
+    // Guarda el archivo HTML generado
+    fs.writeFile('public/index.html', result, 'utf-8', (err) => {
+      if (err) {
+        console.log('Error al guardar el archivo HTML:', err);
+      } else {
+        console.log('Archivo HTML generado exitosamente.');
+      }
+    });
+  });
+
 // Ejecutar la función de consultarPrecio para que se active el ciclo de verificación
 // Importar el modelo Rango
 
