@@ -1,0 +1,3 @@
+[build]
+  publish = "public"  # La carpeta que contiene los archivos estáticos generados
+  command = "npm run build"  # Comando para compilar el proyecto (si usas una herramienta de construcción)
