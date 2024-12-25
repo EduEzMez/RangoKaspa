@@ -6,35 +6,6 @@ const Rango = require('./models/Rango');
 const { consultarPrecio } = require('./config/monKas');
 
 
-
-
-
-
-//Instalar un generador de HTML a partir de Handlebars
-const fs = require('fs');
-const handlebars = require('handlebars');
-
-// Lee el archivo main.handlebars
-fs.readFile('views/layouts/main.handlebars', 'utf-8', (err, data) => {
-    if (err) {
-      console.log('Error al leer el archivo:', err);
-      return;
-    }
-  
-    // Compila la plantilla Handlebars
-    const template = handlebars.compile(data);
-    const result = template({ name: 'Ezequiel' });  // Aquí puedes pasar los datos dinámicos que necesites
-  
-    // Guarda el archivo HTML generado
-    fs.writeFile('public/index.html', result, 'utf-8', (err) => {
-      if (err) {
-        console.log('Error al guardar el archivo HTML:', err);
-      } else {
-        console.log('Archivo HTML generado exitosamente.');
-      }
-    });
-  });
-
 // Ejecutar la función de consultarPrecio para que se active el ciclo de verificación
 // Importar el modelo Rango
 
@@ -44,9 +15,12 @@ const app = express();
 app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
 
+
 // Middleware
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
 
 // Conectar a MongoDB
 const conectarDB = async () => {
@@ -80,7 +54,7 @@ app.get('/', async (req, res) => {
 
 // Ruta para actualizar el rango
 app.post('/rango/actualizar', async (req, res) => {
-    const { minimo, maximo } = req.body;
+    const { minimo, maximo, email } = req.body;
 
     if (minimo >= maximo) {
         return res.status(400).json({ error: 'El valor mínimo debe ser menor al máximo.' });
@@ -89,7 +63,7 @@ app.post('/rango/actualizar', async (req, res) => {
     try {
         let rango = await Rango.findOne();
         if (!rango) {
-            rango = new Rango({ minimo, maximo });
+            rango = new Rango({ minimo, maximo, email });
         } else {
             rango.minimo = minimo;
             rango.maximo = maximo;
@@ -101,6 +75,38 @@ app.post('/rango/actualizar', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+
+
+
+app.post('/configuracion/actualizar', async (req, res) => {
+    const { minimo, maximo, email } = req.body;
+
+    if (minimo >= maximo) {
+        return res.status(400).json({ error: 'El valor mínimo debe ser menor al máximo.' });
+    }
+
+    try {
+        let rango = await Rango.findOne();
+        if (!rango) {
+            // Si no hay un rango existente, crea uno nuevo con los valores enviados
+            rango = new Rango({ minimo, maximo, email });
+        } else {
+            // Si ya existe un rango, actualiza los valores
+            rango.minimo = minimo;
+            rango.maximo = maximo;
+            rango.email = email; // Asegúrate de actualizar también el email
+        }
+        await rango.save();
+        // Redirige al home para mostrar los valores actualizados
+        res.redirect('/');
+    } catch (error) {
+        console.error('Error al actualizar rango:', error.message);
+        res.status(500).json({ error: 'Error al actualizar la configuración.' });
+    }
+});
+
 
 // Iniciar el servidor
 const PORT = 8080;

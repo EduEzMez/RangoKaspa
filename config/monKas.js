@@ -130,6 +130,74 @@
 
 
 
+// const axios = require('axios');
+// const nodemailer = require('nodemailer');
+// const conectarDB = require('./db');
+// const Rango = require('../models/Rango');
+
+// // Configurar conexión a MongoDB
+// conectarDB();
+
+// // Función para consultar el rango desde MongoDB
+// const obtenerRango = async () => {
+//     const rango = await Rango.findOne();
+//     if (!rango) {
+//         throw new Error('No se encontró un rango en la base de datos.');
+//     }
+//     return rango;
+// };
+
+// // Función para enviar un correo
+// const enviarCorreo = async (precio) => {
+//     const mailOptions = {
+//         from: 'ezmezgo@gmail.com',
+//         to: 'ezmezcoin@gmail.com',
+//         subject: `⚠️ Precio Kaspa fuera del rango: ${precio}`,
+//         text: `El precio actual de Kaspa es ${precio}, y está fuera del rango permitido.`
+//     };
+
+//     const transporter = nodemailer.createTransport({
+//         service: 'gmail',
+//         auth: {
+//             user: 'ezmezgo@gmail.com',
+//             pass: 'zrrk rvff mjrj bckt'
+//         }
+//     });
+
+//     try {
+//         await transporter.sendMail(mailOptions);
+//         console.log('Correo enviado con éxito.');
+//     } catch (error) {
+//         console.error('Error al enviar el correo:', error.message);
+//     }
+// };
+
+// // Función para consultar la API y verificar el rango
+// const consultarPrecio = async () => {
+//     try {
+//         const rango = await obtenerRango(); // Leer rango desde MongoDB
+//         const { minimo, maximo } = rango;
+//         const respuesta = await axios.get('https://api.kaspa.org/info/price?stringOnly=true');
+//         const precio = parseFloat(respuesta.data);
+//         console.log(`Precio actual recibido: ${precio}`);
+//         if (precio < minimo || precio > maximo) {
+//             console.log('❌ El precio está fuera del rango.');
+//             await enviarCorreo(precio);
+//         } else {
+//             console.log('✅ El precio está dentro del rango.');
+//         }
+//     } catch (error) {
+//         console.error('Error:', error.message);
+//     }
+// };
+
+
+// // Configurar el intervalo para consultas periódicas
+// setInterval(consultarPrecio, 30000); // Consulta cada 4 segundos
+
+
+//NUEVO CODIGO PARA AGREGAR EL MAIL
+
 const axios = require('axios');
 const nodemailer = require('nodemailer');
 const conectarDB = require('./db');
@@ -138,31 +206,32 @@ const Rango = require('../models/Rango');
 // Configurar conexión a MongoDB
 conectarDB();
 
-// Función para consultar el rango desde MongoDB
-const obtenerRango = async () => {
-    const rango = await Rango.findOne();
-    if (!rango) {
-        throw new Error('No se encontró un rango en la base de datos.');
+// Configuración del transporte para enviar correos
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'ezmezgo@gmail.com', // Reemplazar con tu email
+        pass: 'zrrk rvff mjrj bckt' // Contraseña de aplicación
     }
-    return rango;
+});
+
+// Función para obtener la configuración de MongoDB
+const obtenerConfiguracion = async () => {
+    const configuracion = await Rango.findOne();
+    if (!configuracion) {
+        throw new Error('No se encontró configuración en la base de datos.');
+    }
+    return configuracion;
 };
 
 // Función para enviar un correo
-const enviarCorreo = async (precio) => {
+const enviarCorreo = async (precio, correo) => {
     const mailOptions = {
         from: 'ezmezgo@gmail.com',
-        to: 'ezmezcoin@gmail.com',
-        subject: `⚠️ Precio Kaspa fuera del rango: ${precio}`,
+        to: correo, // Correo configurado en MongoDB
+        subject: `⚠️ ${precio} Precio Kaspa fuera del rango`,
         text: `El precio actual de Kaspa es ${precio}, y está fuera del rango permitido.`
     };
-
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'ezmezgo@gmail.com',
-            pass: 'zrrk rvff mjrj bckt'
-        }
-    });
 
     try {
         await transporter.sendMail(mailOptions);
@@ -175,14 +244,17 @@ const enviarCorreo = async (precio) => {
 // Función para consultar la API y verificar el rango
 const consultarPrecio = async () => {
     try {
-        const rango = await obtenerRango(); // Leer rango desde MongoDB
-        const { minimo, maximo } = rango;
+        const configuracion = await obtenerConfiguracion(); // Leer configuración desde MongoDB
+        const { minimo, maximo, email } = configuracion;
+
         const respuesta = await axios.get('https://api.kaspa.org/info/price?stringOnly=true');
         const precio = parseFloat(respuesta.data);
-        console.log(`Precio actual recibido: ${precio}`);
+
+        console.log(`Precio actual recibido: ${precio}`); // Verifica el precio que se obtiene de la API
+
         if (precio < minimo || precio > maximo) {
             console.log('❌ El precio está fuera del rango.');
-            await enviarCorreo(precio);
+            await enviarCorreo(precio, email); // Enviar correo al email configurado
         } else {
             console.log('✅ El precio está dentro del rango.');
         }
@@ -191,8 +263,5 @@ const consultarPrecio = async () => {
     }
 };
 
-
 // Configurar el intervalo para consultas periódicas
-setInterval(consultarPrecio, 4000); // Consulta cada 4 segundos
-
-
+setInterval(consultarPrecio, 30000); // Consulta cada 4 segundos
