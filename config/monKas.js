@@ -210,8 +210,8 @@ conectarDB();
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'ezmezgo@gmail.com', // Reemplazar con tu email
-        pass: 'zrrk rvff mjrj bckt' // Contraseña de aplicación
+        user: 'polkonaut@gmail.com', // Reemplazar con tu email
+        pass: 'wkqt ziwm gkyo zusc' // Contraseña de aplicación
     }
 });
 
@@ -258,10 +258,16 @@ const consultarPrecio = async () => {
         } else {
             console.log('✅ El precio está dentro del rango.');
         }
+
+        return precio; // Devuelve el precio para usarlo en otras partes
     } catch (error) {
         console.error('Error:', error.message);
+        return 'Error al obtener precio';
     }
 };
+
+module.exports = { consultarPrecio };
+
 
 // Configurar el intervalo para consultas periódicas
 setInterval(consultarPrecio, 30000); // Consulta cada 4 segundos

@@ -7,6 +7,7 @@ body {
     color: #FFFFFF; /* Texto blanco */
     display: flex;
     justify-content: center;
+    flex-direction: column;
     align-items: center;
     min-height: 100vh;
 }
@@ -22,11 +23,23 @@ body {
     width: 90%;
 }
 
+.contenedor_imagen{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.imagen_kaspa{
+    height: auto;
+    width: 50%;
+}
+
 /* Título */
 .contenedor_total h1 {
     margin-bottom: 20px;
     font-size: 30px;
-    color: #E3E3E3; /* Texto ligeramente gris */
+    color: #231F20; /* Texto ligeramente gris */
 }
 
 /* Contenedor del formulario */
@@ -58,8 +71,8 @@ body {
 .contenedor_formulario button {
     padding: 10px 20px;
     font-size: 16px;
-    color: #FFFFFF;
-    background-color: #B6B6B6; /* Botón rojo suave */
+    color: #FFFFFF; 
+    background-color: #E55B50; /* Botón rojo suave */
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -67,7 +80,8 @@ body {
 }
 
 .contenedor_formulario button:hover {
-    background-color: #E55B50; /* Botón rojo más oscuro al pasar el cursor */
+    background-color: #FFFFFF; /* Botón rojo más oscuro al pasar el cursor */
+    color: #231F20; 
 }
 
 /* Asegurar que el formulario no se desborde */

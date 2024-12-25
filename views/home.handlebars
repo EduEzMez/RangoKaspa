@@ -6,8 +6,12 @@
     <title>Formulario de Configuración</title>
 </head>
 <body>
+    <div class="contenedor_imagen">
+        <img class="imagen_kaspa" src="./kaspa_we.webp" alt="kaspa">
+    </div>
     <div class="contenedor_total">
         <h1>Modificar Configuración</h1>
+        <p>Precio actual de Kaspa: {{precio}} USD</p>
         <div class="contenedor_formulario">
             <form action="/configuracion/actualizar" method="POST">
                 <label for="minimo">Valor Mínimo:</label>

@@ -38,19 +38,23 @@ conectarDB();
 // Ruta para mostrar el formulario
 app.get('/', async (req, res) => {
     try {
-        const rango = await Rango.findOne();  // Obtener los valores de mínimo y máximo
-        if (!rango) {
-            return res.status(404).json({ error: 'No se encontraron valores de rango.' });
-        }
-        // Renderizar la vista 'home' con los valores actuales de rango
-        res.render('home', {
-            minimo: rango.minimo,
-            maximo: rango.maximo
-        });
+        // Llama a la función consultarPrecio para obtener el precio actual
+        const precio = await consultarPrecio();
+
+        // Obtén rango y correo desde la base de datos
+        const rango = await Rango.findOne();
+        const minimo = rango ? rango.minimo : '';
+        const maximo = rango ? rango.maximo : '';
+        const email = rango ? rango.email : '';
+
+        // Renderiza la vista 'home' con los valores y el precio
+        res.render('home', { minimo, maximo, email, precio });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error al cargar el Home:', error.message);
+        res.status(500).send('Error al cargar la página.');
     }
 });
+
 
 // Ruta para actualizar el rango
 app.post('/rango/actualizar', async (req, res) => {
@@ -59,7 +63,6 @@ app.post('/rango/actualizar', async (req, res) => {
     if (minimo >= maximo) {
         return res.status(400).json({ error: 'El valor mínimo debe ser menor al máximo.' });
     }
-
     try {
         let rango = await Rango.findOne();
         if (!rango) {
@@ -75,10 +78,6 @@ app.post('/rango/actualizar', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
-
-
-
 
 app.post('/configuracion/actualizar', async (req, res) => {
     const { minimo, maximo, email } = req.body;
@@ -106,7 +105,6 @@ app.post('/configuracion/actualizar', async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar la configuración.' });
     }
 });
-
 
 // Iniciar el servidor
 const PORT = 8080;
